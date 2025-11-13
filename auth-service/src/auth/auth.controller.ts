@@ -14,7 +14,7 @@ export class AuthController {
     return this.authService.generateGoogleAuthUrl();
   }
 
-  // Route GET pour le callback Google - PAGE HTML QUI FERME LA FENÊTRE
+  // Route GET pour le callback Google
   @Get('google/callback')
   async googleAuthCallback(@Query('code') code: string, @Res() res: any) {
     console.log('🔑 Google callback received');
@@ -29,7 +29,6 @@ export class AuthController {
       const result = await this.authService.googleAuth({ code });
       console.log('✅ Google auth successful for:', result.user.email);
       
-      // Servir une page HTML qui communique avec le parent et se ferme
       return this.serveClosePage(res, 'success', null, result.token, result.user);
       
     } catch (error: any) {
@@ -40,6 +39,8 @@ export class AuthController {
   }
 
   private serveClosePage(res: any, status: string, errorMessage: string | null, token?: string, user?: any) {
+    const frontendUrl = process.env.FRONTEND_URL || 'http://testa.bizienadam.fr';
+    
     if (status === 'success' && token && user) {
       const html = `
         <!DOCTYPE html>
@@ -74,21 +75,20 @@ export class AuthController {
                 }
             </style>
             <script>
-                // Envoyer les données au parent (fenêtre principale)
+                // CORRECTION: Envoyer à testa.bizienadam.fr
                 if (window.opener && !window.opener.closed) {
                     window.opener.postMessage({
                         type: 'OAUTH_SUCCESS',
                         token: '${token}',
                         user: ${JSON.stringify(user)}
-                    }, 'http://localhost:3000');
+                    }, '${frontendUrl}');
                     
-                    // Fermer cette fenêtre après un court délai
                     setTimeout(() => {
                         window.close();
                     }, 1000);
                 } else {
-                    // Si pas de parent, rediriger vers la page principale
-                    window.location.href = 'http://localhost:3000?auth=google&status=success&token=${token}&user=${encodeURIComponent(JSON.stringify(user))}';
+                    // CORRECTION: Rediriger vers testa.bizienadam.fr
+                    window.location.href = '${frontendUrl}?auth=google&status=success&token=${token}&user=${encodeURIComponent(JSON.stringify(user))}';
                 }
             </script>
         </head>
@@ -136,17 +136,19 @@ export class AuthController {
                 }
             </style>
             <script>
+                // CORRECTION: Envoyer à testa.bizienadam.fr
                 if (window.opener && !window.opener.closed) {
                     window.opener.postMessage({
                         type: 'OAUTH_ERROR',
                         error: '${errorMessage}'
-                    }, 'http://localhost:3000');
+                    }, '${frontendUrl}');
                     
                     setTimeout(() => {
                         window.close();
                     }, 2000);
                 } else {
-                    window.location.href = 'http://localhost:3000?auth=google&status=error&message=${encodeURIComponent(errorMessage || 'Unknown error')}';
+                    // CORRECTION: Rediriger vers testa.bizienadam.fr
+                    window.location.href = '${frontendUrl}?auth=google&status=error&message=${encodeURIComponent(errorMessage || 'Unknown error')}';
                 }
             </script>
         </head>
@@ -166,7 +168,7 @@ export class AuthController {
     }
   }
 
-  // Route POST pour le callback Google (pour le frontend)
+  // Route POST pour le callback Google
   @Post('google/callback')
   googleAuth(@Body() googleAuthDto: GoogleAuthDto) {
     return this.authService.googleAuth(googleAuthDto);
