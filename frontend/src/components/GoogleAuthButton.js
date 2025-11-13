@@ -7,7 +7,8 @@ const GoogleAuthButton = ({ onSuccess, onError, buttonText = "Continue with Goog
     setLoading(true);
     
     try {
-      const response = await fetch('/api/auth/google/url');
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/api/auth/google/url`);
       const { authUrl: googleAuthUrl } = await response.json();
       
       console.log('🔗 Opening Google OAuth in popup...');
