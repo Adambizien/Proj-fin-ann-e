@@ -2,9 +2,11 @@ import axios from 'axios';
 
 const getApiBaseUrl = () => {
   const { hostname, protocol } = window.location;
+  
   if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
-    return `${protocol}//${hostname}:8000`;
+    return `${protocol}//${hostname}`;
   }
+  
   return 'http://localhost:8000';
 };
 
