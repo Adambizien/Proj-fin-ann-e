@@ -12,6 +12,7 @@ const getApiBaseUrl = () => {
 };
 const API_URL = getApiBaseUrl();
 
+console.log('API URL:', API_URL)
 // Create axios instance
 const api = axios.create({
   baseURL: API_URL,
