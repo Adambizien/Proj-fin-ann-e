@@ -8,7 +8,8 @@ const GoogleAuthButton = ({ onSuccess, onError, buttonText = "Continue with Goog
     
     try {
       // URL directe vers le backend (pas besoin d'appel API)
-      const authUrl = 'http://localhost:8000/api/auth/google/url';
+      // const authUrl = 'http://localhost:8000/api/auth/google/url';
+      const authUrl = `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/api/auth/google/url`;
       const response = await fetch(authUrl);
       const { authUrl: googleAuthUrl } = await response.json();
       
